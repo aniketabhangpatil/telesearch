@@ -40,8 +40,9 @@ if (process.env.DATABASE_URL) {
     database: process.env.DB_NAME || 'telegram_channel_finder',
     ...sslOptions,
     waitForConnections: true,
-    connectionLimit: 15,
+    connectionLimit: 10,
     queueLimit: 0,
+    connectTimeout: 10000,
     enableKeepAlive: true,
     keepAliveInitialDelay: 10000,
     charset: 'utf8mb4'

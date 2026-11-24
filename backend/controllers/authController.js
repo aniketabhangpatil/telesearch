@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import pool from '../config/db.js';
 
 export const login = async (req, res) => {
@@ -52,7 +52,7 @@ export const login = async (req, res) => {
     console.error('Login error:', error);
     return res.status(500).json({
       success: false,
-      message: 'An internal server error occurred during login.'
+      message: `Database or server error: ${error.message || 'Login process failed'}`
     });
   }
 };
