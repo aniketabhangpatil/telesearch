@@ -1,5 +1,7 @@
+
 import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
+
 dotenv.config();
 
 const pool = mysql.createPool({
@@ -8,6 +10,16 @@ const pool = mysql.createPool({
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '',
   database: process.env.DB_NAME || 'telegram_channel_finder',
+
+  // Enable TLS for TiDB Cloud when DB_SSL=true
+  ...(process.env.DB_SSL === 'true'
+    ? {
+      ssl: {
+        minVersion: 'TLSv1.2'
+      }
+    }
+    : {}),
+
   waitForConnections: true,
   connectionLimit: 15,
   queueLimit: 0,
@@ -19,7 +31,12 @@ const pool = mysql.createPool({
 export const testConnection = async () => {
   try {
     const connection = await pool.getConnection();
-    console.log('✅ Connected successfully to MySQL database:', process.env.DB_NAME || 'telegram_channel_finder');
+
+    console.log(
+      '✅ Connected successfully to MySQL database:',
+      process.env.DB_NAME || 'telegram_channel_finder'
+    );
+
     connection.release();
     return true;
   } catch (error) {
@@ -29,4 +46,3 @@ export const testConnection = async () => {
 };
 
 export default pool;
-
