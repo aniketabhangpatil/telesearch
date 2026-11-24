@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Sparkles, ExternalLink, ShieldCheck, Compass } from 'lucide-react';
 import { TelegramIcon } from './Icons';
+import { getAssetUrl } from '../api/api';
 
 export const FeaturedOrbit = ({ featuredChannels = [] }) => {
   const [hoveredIndex, setHoveredIndex] = useState(null);
@@ -116,7 +117,7 @@ export const FeaturedOrbit = ({ featuredChannels = [] }) => {
                       <div className="relative w-11 h-11 rounded-xl bg-navy-900 border border-cyan-500/30 overflow-hidden flex-shrink-0 flex items-center justify-center">
                         {channel.logo_url ? (
                           <img
-                            src={channel.logo_url}
+                            src={getAssetUrl(channel.logo_url)}
                             alt={channel.name}
                             className="w-full h-full object-cover"
                             onError={(e) => {
@@ -185,7 +186,7 @@ export const FeaturedOrbit = ({ featuredChannels = [] }) => {
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-12 h-12 rounded-xl bg-navy-900 border border-cyan-500/30 overflow-hidden flex-shrink-0 flex items-center justify-center">
                   {channel.logo_url ? (
-                    <img src={channel.logo_url} alt={channel.name} className="w-full h-full object-cover" />
+                    <img src={getAssetUrl(channel.logo_url)} alt={channel.name} className="w-full h-full object-cover" />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-tr from-accent-blue/30 to-accent-cyan/20 flex items-center justify-center font-bold text-accent-neon text-sm">
                       {channel.name?.slice(0, 2).toUpperCase() || 'TG'}

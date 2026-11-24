@@ -10,6 +10,16 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const findSqlFile = (filename) => {
+  const candidates = [
+    path.join(__dirname, '..', '..', 'database', filename),
+    path.join(__dirname, '..', 'database', filename),
+    path.join(process.cwd(), 'database', filename),
+    path.join(process.cwd(), '..', 'database', filename)
+  ];
+  return candidates.find(c => fs.existsSync(c)) || null;
+};
+
 async function runDatabaseInitialization() {
   console.log('🔄 Initializing Telegram Channel Finder MySQL Database...');
 
@@ -19,7 +29,21 @@ async function runDatabaseInitialization() {
   const dbPassword = process.env.DB_PASSWORD || '';
   const dbName = process.env.DB_NAME || 'telegram_channel_finder';
 
-  console.log(`Connecting to MySQL host: ${dbHost}:${dbPort} as user: ${dbUser}...`);
+  const isCloudSSL = 
+    process.env.DB_SSL === 'true' || 
+    (dbHost && dbHost.includes('tidbcloud.com')) || 
+    dbPort === 4000;
+
+  const sslOptions = isCloudSSL
+    ? {
+        ssl: {
+          minVersion: 'TLSv1.2',
+          rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED !== 'false'
+        }
+      }
+    : {};
+
+  console.log(`Connecting to MySQL host: ${dbHost}:${dbPort} as user: ${dbUser} (SSL: ${isCloudSSL})...`);
 
   let rootConnection;
   try {
@@ -29,7 +53,8 @@ async function runDatabaseInitialization() {
       port: dbPort,
       user: dbUser,
       password: dbPassword,
-      multipleStatements: true
+      multipleStatements: true,
+      ...sslOptions
     });
     console.log('✅ Connected to MySQL server.');
 
@@ -46,30 +71,31 @@ async function runDatabaseInitialization() {
       user: dbUser,
       password: dbPassword,
       database: dbName,
-      multipleStatements: true
+      multipleStatements: true,
+      ...sslOptions
     });
     console.log(`✅ Connected to database \`${dbName}\`.`);
 
     // Step 3: Read and execute schema.sql
-    const schemaPath = path.join(__dirname, '..', '..', 'database', 'schema.sql');
-    if (fs.existsSync(schemaPath)) {
-      console.log('📜 Executing schema.sql...');
+    const schemaPath = findSqlFile('schema.sql');
+    if (schemaPath) {
+      console.log('📜 Executing schema.sql from:', schemaPath);
       const schemaSql = fs.readFileSync(schemaPath, 'utf8');
       await dbConnection.query(schemaSql);
       console.log('✅ Schema tables successfully created/verified.');
     } else {
-      console.warn('⚠️ schema.sql not found at:', schemaPath);
+      console.warn('⚠️ schema.sql not found in standard paths.');
     }
 
     // Step 4: Read and execute seed.sql
-    const seedPath = path.join(__dirname, '..', '..', 'database', 'seed.sql');
-    if (fs.existsSync(seedPath)) {
-      console.log('🌱 Executing seed.sql...');
+    const seedPath = findSqlFile('seed.sql');
+    if (seedPath) {
+      console.log('🌱 Executing seed.sql from:', seedPath);
       const seedSql = fs.readFileSync(seedPath, 'utf8');
       await dbConnection.query(seedSql);
       console.log('✅ Seeds successfully executed.');
     } else {
-      console.warn('⚠️ seed.sql not found at:', seedPath);
+      console.warn('⚠️ seed.sql not found in standard paths.');
     }
 
     // Step 5: Initialize Admin User securely using bcrypt
@@ -118,4 +144,3 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
 }
 
 export default runDatabaseInitialization;
-

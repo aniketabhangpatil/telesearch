@@ -24,6 +24,9 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Trust reverse proxies (essential for secure cookies on Vercel, Render, Railway, Heroku)
+app.set('trust proxy', 1);
+
 // Security Headers
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
@@ -35,7 +38,8 @@ const allowedOrigins = [
   'http://localhost:5173',
   'http://127.0.0.1:5173',
   'http://localhost:5000',
-  'http://127.0.0.1:5000'
+  'http://127.0.0.1:5000',
+  ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL.replace(/\/$/, '')] : [])
 ];
 
 app.use(cors({
@@ -106,10 +110,14 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start Server
-app.listen(PORT, async () => {
-  console.log(`🚀 Telegram Channel Finder Backend listening on port ${PORT}`);
-  console.log(`📡 API Health: http://localhost:${PORT}/api/health`);
-  await testConnection();
-});
+// Start Server (only when not running as a Vercel serverless function)
+if (!process.env.VERCEL) {
+  app.listen(PORT, async () => {
+    console.log(`🚀 Telegram Channel Finder Backend listening on port ${PORT}`);
+    console.log(`📡 API Health: http://localhost:${PORT}/api/health`);
+    await testConnection();
+  });
+}
+
+export default app;
 

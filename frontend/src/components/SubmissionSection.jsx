@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Send, Upload, CheckCircle2, AlertCircle, Sparkles, HelpCircle } from 'lucide-react';
 import { TelegramIcon } from './Icons';
+import { api } from '../api/api';
 
 export const SubmissionSection = ({ categories = [], onSubmitSuccess, isModal = false, onClose }) => {
   const [formData, setFormData] = useState({
@@ -70,14 +71,10 @@ export const SubmissionSection = ({ categories = [], onSubmitSuccess, isModal = 
         payload.append('logo', logoFile);
       }
 
-      const res = await fetch('/api/channels/submit', {
-        method: 'POST',
-        body: payload
-      });
-      const data = await res.json();
+      const data = await api.submitChannel(payload);
 
-      if (!res.ok || !data.success) {
-        throw new Error(data.message || 'Submission failed. Please verify your details.');
+      if (!data || !data.success) {
+        throw new Error(data?.message || 'Submission failed. Please verify your details.');
       }
 
       setSuccess(data.message || 'Channel submitted successfully! Pending review.');

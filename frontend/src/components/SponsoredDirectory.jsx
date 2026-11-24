@@ -1,6 +1,7 @@
 import React from 'react';
 import { Award, ExternalLink, ShieldCheck, Sparkles } from 'lucide-react';
 import { TelegramIcon } from './Icons';
+import { getAssetUrl } from '../api/api';
 
 export const SponsoredDirectory = ({ sponsoredChannels = [], onScrollToSponsor }) => {
   return (
@@ -67,7 +68,7 @@ export const SponsoredDirectory = ({ sponsoredChannels = [], onScrollToSponsor }
                     <div className="w-11 h-11 rounded-xl bg-navy-900 border border-cyan-500/30 overflow-hidden flex-shrink-0 flex items-center justify-center">
                       {item.logo_url ? (
                         <img
-                          src={item.logo_url}
+                          src={getAssetUrl(item.logo_url)}
                           alt={item.name}
                           className="w-full h-full object-cover"
                           onError={(e) => {

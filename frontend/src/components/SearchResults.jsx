@@ -1,6 +1,7 @@
 import React from 'react';
 import { ExternalLink, Tag, Globe, Sparkles, ChevronLeft, ChevronRight, Inbox } from 'lucide-react';
 import { TelegramIcon } from './Icons';
+import { getAssetUrl } from '../api/api';
 
 export const SearchResults = ({
   channels = [],
@@ -96,7 +97,7 @@ export const SearchResults = ({
                     <div className="w-14 h-14 rounded-2xl bg-navy-900 border border-cyan-500/30 overflow-hidden flex-shrink-0 flex items-center justify-center group-hover:border-cyan-400 transition-colors">
                       {channel.logo_url ? (
                         <img
-                          src={channel.logo_url}
+                          src={getAssetUrl(channel.logo_url)}
                           alt={channel.name}
                           className="w-full h-full object-cover"
                           onError={(e) => {
