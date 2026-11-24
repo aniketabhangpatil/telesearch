@@ -42,7 +42,7 @@ if (process.env.DATABASE_URL) {
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
-    connectTimeout: 10000,
+    connectTimeout: 20000,
     enableKeepAlive: true,
     keepAliveInitialDelay: 10000,
     charset: 'utf8mb4'

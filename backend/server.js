@@ -91,10 +91,16 @@ app.use('/api/sponsored', sponsoredRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/settings', settingsRoutes);
 
-// Health check endpoint
-app.get('/api/health', (req, res) => {
-  res.json({
-    status: 'online',
+// Health check endpoint (shows DB connectivity status)
+app.get('/api/health', async (req, res) => {
+  const dbOk = await testConnection();
+  res.status(dbOk ? 200 : 503).json({
+    status: dbOk ? 'online' : 'degraded',
+    db: dbOk ? 'connected' : 'unreachable',
+    db_host: process.env.DB_HOST || 'localhost',
+    db_port: process.env.DB_PORT || '3306',
+    db_name: process.env.DB_NAME || 'telegram_channel_finder',
+    db_ssl: process.env.DB_SSL || 'false',
     timestamp: new Date().toISOString(),
     service: 'Telegram Channel Finder API'
   });
