@@ -1,7 +1,7 @@
 {
-  "name": "telegram-channel-finder-backend",
+  "name": "telesearch-backend",
   "version": "1.0.0",
-  "description": "Backend API for Telegram Channel Finder",
+  "description": "Backend API for TeleSearch",
   "main": "server.js",
   "type": "module",
   "scripts": {

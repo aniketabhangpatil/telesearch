@@ -3,10 +3,12 @@ import session from 'express-session';
 import cors from 'cors';
 import helmet from 'helmet';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import { testConnection } from './config/db.js';
 import { apiLimiter } from './middleware/rateLimiter.js';
+import { ensureUploadDir } from './middleware/uploadMiddleware.js';
 
 import authRoutes from './routes/auth.js';
 import channelRoutes from './routes/channels.js';
@@ -68,8 +70,15 @@ app.use(session({
   }
 }));
 
-// Static uploads serving
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Static uploads serving (compatible with local development and Vercel temporary storage)
+const uploadDirectory = ensureUploadDir();
+app.use('/uploads', express.static(uploadDirectory));
+
+// Fallback to local uploads directory if distinct from uploadDirectory
+const localUploadsDir = path.join(__dirname, 'uploads');
+if (localUploadsDir !== uploadDirectory && fs.existsSync(localUploadsDir)) {
+  app.use('/uploads', express.static(localUploadsDir));
+}
 
 // API Routes
 app.use('/api/auth', authRoutes);

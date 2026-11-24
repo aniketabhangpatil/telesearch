@@ -144,4 +144,3 @@ export const Footer = ({ onOpenAdmin, sponsorshipEmail = 'silkroad2@gmail.com', 
     </footer>
   );
 };
-
